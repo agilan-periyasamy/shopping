@@ -92,4 +92,4 @@ Until you add more, these ones are *necessary* for a production deploy:
 
 `Version 7.25.2`
 
-### Sample API Request and Response will be updated...
+### Sample API Request and Response has been updated here for reference 
