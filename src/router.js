@@ -108,13 +108,13 @@ export default function createRouter() {
   router.post("/api/product", verifyAdminMiddleware,createProducts);
   router.get("/api/getProductsByCid/:categoryid", getProductByCid);
   router.put("/api/updateStock/:productId", verifyAdminMiddleware, updateProductStock);
-  router.get("/api/getAvailStock", verifyAdminMiddleware, getAvailProductStock);
+  router.get("/api/getAvailStock", getAvailProductStock);
   /*
    * Orders endpoints
    */
   router.get("/api/getOrdersList", verifyAdminMiddleware, getOrdersList);
   router.get("/api/getOrdersList/:userId", getOrdersByUserid);
-  router.post("/api/:userId/:addressId/submitOrders",submitOrders);
+  router.post("/api/:userId/:addressId/submitOrders", verifyUserMiddleware, submitOrders);
 
   // ******************
   // * ERROR HANDLING *

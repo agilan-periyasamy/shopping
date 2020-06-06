@@ -9,7 +9,6 @@ import BaseModel from "./base";
 import OrdersSchema from "./schemas/orders.schema";
 import ProductsSchema from "./schemas/products.schema";
 import OrderItemSchema from "./schemas/orderItem.schema";
-import AddressSchema from "./schemas/address.schema";
 import HttpStatus from "http-status-codes";
 import { ApplicationError } from "../lib/errors";
 import {Op} from "sequelize";

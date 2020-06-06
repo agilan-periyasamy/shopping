@@ -43,7 +43,7 @@ export const updateProductStock = route(async (req, res) => {
 export const getAvailProductStock = route(async (req, res) => {
   try {
     const availProduct = await ProductsDB.getAvailableProductStock();
-    res.send({ data: availProduct });
+    res.send({ message: "success", data: availProduct });
   } catch (error) {
     throw new ApplicationError(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
   }
