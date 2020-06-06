@@ -27,7 +27,7 @@ import {
   getAvailProductStock
 } from "./routes/products";
 import {
-  create as createOrders,
+  getOrdersByUserid,
   getOrdersList,
   submitOrders
 } from "./routes/orders";
@@ -112,9 +112,9 @@ export default function createRouter() {
   /*
    * Orders endpoints
    */
-  router.get("/api/getOrdersList", getOrdersList);
-  router.post("/api/orders", createOrders);
-  router.post("/api/:userId/:addressId/submitOrders", verifyUserMiddleware, submitOrders);
+  router.get("/api/getOrdersList", verifyAdminMiddleware, getOrdersList);
+  router.get("/api/getOrdersList/:userId", getOrdersByUserid);
+  router.post("/api/:userId/:addressId/submitOrders",submitOrders);
 
   // ******************
   // * ERROR HANDLING *

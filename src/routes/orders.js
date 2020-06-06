@@ -2,12 +2,6 @@ import { route } from "./";
 import OrdersDB from "../db/orders";
 import HttpStatus from "http-status-codes";
 import { ApplicationError } from "../lib/errors";
-export const create = route(async (req, res) => {
-    const { email, password } = req.body;
-    const newUser = await OrdersDB.create(email, password);
-    res.send({ data: newUser });
-  }
-);
 
 export const getOrdersList = route(async (req, res) => {
   const ordersList = await OrdersDB.getOrdersList();
@@ -29,3 +23,13 @@ export const submitOrders = route(
     }
   }
 );
+
+export const getOrdersByUserid = route(async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const orders = await OrdersDB.getOrdersByUserid(userId);
+    res.send({ data: orders });
+  } catch (error) {
+    throw new ApplicationError(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+});

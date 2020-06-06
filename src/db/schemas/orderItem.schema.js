@@ -31,6 +31,11 @@ const OrderItemsSchema = {
     defaultValue: 0,
     allowNull: false
   },
+  amount: {
+    type: Sequelize.DECIMAL(10, 2),
+    allowNull: true,
+    defaultValue: 0,
+  },
   status: {
     type: Sequelize.ENUM('1', '2', '3', '4', '5'),
     defaultValue: 1,

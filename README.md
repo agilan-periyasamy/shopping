@@ -86,5 +86,10 @@ Until you add more, these ones are *necessary* for a production deploy:
   script
 * `JWT_SECRET`: The secret used to produce JSON Web Tokens
 
+### API Testing Tool
+
+`Postman for Linux`
+
+`Version 7.25.2`
 
 ### Sample API Request and Response will be updated...

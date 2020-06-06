@@ -30,25 +30,7 @@ export class OrderItemDB extends BaseModel {
       throw error;
     }
   };
-  /**
-   * Creates a new user and stores it in the database.
-   * @param {string} userName the new user's userName
-   * @param {string} password the new user's password
-   */
-  create = async (email, password) => {
-    const newUserId = uuid.v4();
-    const newUser = {
-      id: newUserId,
-      email,
-      password
-    };
-    try {
-      const createdUser = await this.OrderItemModel.create(newUser);
-      return createdUser;
-    } catch (e) {
-      throw new ApplicationError(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  };
+  
 }
 
 export default new OrderItemDB(); // singleton instance of the database

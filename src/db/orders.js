@@ -19,8 +19,8 @@ export class OrdersDB extends BaseModel {
     this.OrdersModel = this.connection.define("orders", OrdersSchema);
     this.ProductsModel = this.connection.define("products", ProductsSchema);
     this.OrderItemModel = this.connection.define("orderItems", OrderItemSchema);
-    this.OrderItemModel.belongsTo(this.ProductsModel);
-    this.ProductsModel.hasMany(this.OrderItemModel );
+    // this.OrderItemModel.belongsTo(this.ProductsModel);
+    // this.ProductsModel.hasMany(this.OrderItemModel );
   }
   
   getOrdersList = async () => {
@@ -30,7 +30,7 @@ export class OrdersDB extends BaseModel {
         attributes: [
           "orderId",
           "userId",
-          "amount",
+          "totalAmount",
           "status"],
         order: [["updatedAt", "desc"]] 
       });
@@ -40,7 +40,7 @@ export class OrdersDB extends BaseModel {
           const orderId = ordersRecord.orderId;
           const orderItems = await this.OrderItemModel.findAll({
             raw: true,
-            attributes: ["productId", "quantity"],
+            attributes: ["productId", "quantity", "amount"],
             where: { orderId },
             order: [["updatedAt", "desc"]]
           });
@@ -53,7 +53,8 @@ export class OrdersDB extends BaseModel {
               order: [["updatedAt", "desc"]]
             });
             const productName  = product.productName,
-                  quantity = ordersItem.quantity;
+                  quantity = ordersItem.quantity,
+                  amount = ordersItem.quantity;
             productInfo.push({
               ...ordersItem,
               productName,
@@ -82,19 +83,54 @@ export class OrdersDB extends BaseModel {
       if (!userId) {
         throw new ApplicationError("No userId provided", HttpStatus.INTERNAL_SERVER_ERROR);
       }
-      // const ordersList = await this.getOrdersList();
-      const orders = await this.OrdersModel.findOne({
-        attributes: ["productId", "categoryId", "productName", "description", "price", "stock"],
+      const Orders = await this.OrdersModel.findAll({ 
+        raw: true,
+        attributes: [
+          "orderId",
+          "userId",
+          "totalAmount",
+          "status"],
         where: { userId: userId },
-        order: [["createdAt", "DESC"]]
+        order: [["updatedAt", "desc"]] 
       });
-      if (!assessment) {
+      let ordersRecords = [];
+      for (const ordersRecord of Orders) {
+          const orderId = ordersRecord.orderId;
+          const orderItems = await this.OrderItemModel.findAll({
+            raw: true,
+            attributes: ["productId", "quantity", "amount"],
+            where: { orderId },
+            order: [["updatedAt", "desc"]]
+          });
+          let productInfo = [];
+          for (const ordersItem of orderItems) {
+            const product = await this.ProductsModel.findOne({
+              raw: true,
+              attributes: ["productName"],
+              where: { productId: ordersItem.productId },
+              order: [["updatedAt", "desc"]]
+            });
+            const productName  = product.productName,
+                  quantity = ordersItem.quantity,
+                  amount = ordersItem.quantity;
+            productInfo.push({
+              ...ordersItem,
+              productName,
+              quantity
+            });
+          } 
+          ordersRecords.push({
+            ...ordersRecord,
+            productInfo
+          });
+      }
+      if (ordersRecords) return ordersRecords;
+      else {
         throw new ApplicationError(
-          "Assement of this id is not found",
-          INTERNAL_SERVER_ERROR
+          "No Orders found!",
+          HttpStatus.INTERNAL_SERVER_ERROR
         );
       }
-      return assessment;
     } catch (error) {
       throw error;
     }
@@ -127,6 +163,7 @@ submitOrders = async (
       // let isValid = true;
       for (const order of orders) {
         let updatedQty = 0;
+        let amount = 0;
         const productId = order.productId;
         const quantity = order.quantity;
         const products = await this.ProductsModel.findOne({
@@ -140,9 +177,10 @@ submitOrders = async (
               } 
             }
           });
-          const createdOrderItem = await this.OrderItemModel.create({orderId, productId, quantity});
           updatedQty = parseInt(products.stock - order.quantity);
-          totalAmount += parseInt(products.price * order.quantity);
+          amount = parseInt(products.price * order.quantity);
+          totalAmount += amount;
+          const createdOrderItem = await this.OrderItemModel.create({orderId, productId, quantity, amount});
           if(!products || updatedQty <= 0) {
             // isValid = false; // order cancelled due to out of stock
             const updateOrder = await this.OrdersModel.update({status: 5}, 
@@ -169,7 +207,7 @@ submitOrders = async (
               }
             });
       }
-      const updateAmount = await this.OrdersModel.update({amount: totalAmount}, 
+      const updateAmount = await this.OrdersModel.update({totalAmount: totalAmount}, 
         {
           where: {
             orderId
